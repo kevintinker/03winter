@@ -7,7 +7,7 @@
   <meta charset="UTF-8">
   <link rel="shortcut icon" type="image/x-icon" href="https://production-assets.codepen.io/assets/favicon/favicon-8ea04875e70c4b0bb41da869e81236e54394d63638a1ef12fa558a4a835f1164.ico" />
   <link rel="mask-icon" type="" href="https://production-assets.codepen.io/assets/favicon/logo-pin-f2d2b6d2c61838f7e76325261b7195c27224080bc099486ddd6dccb469b8e8e6.svg" color="#111" />
-  <title>CodePen - 10winter</title>
+  <title>CodePen - 11awinter</title>
   
   
   
@@ -15,7 +15,14 @@
       <style>
       #myCanvas{
   background:rgb(225,180,220);
+   padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    width: 650px;
 }
+
     </style>
 
   
@@ -26,10 +33,11 @@
 
 <body translate="no" >
 
-  <canvas id="myCanvas" width=400 height=300></canvas>
+  <canvas id="myCanvas" width=400 height=300 style="border:4px solid #000000;"></canvas>
 
 <div>Team A:<span id="scoreA">0</span></div>
 <div>Team B:<span id="scoreB">0</span></div>
+<div>Ball Count:<span id="ballsAlive">0</span></div>
   
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
 
@@ -42,24 +50,37 @@ function makeBalls(n) {
   for (i = 0; i < n; i++) {
     var ball = {};
     ball.alive = true;
-    ball.r = Math.random() * 10 + 2;
+    ball.r = Math.random() * 10 + 5;
     ball.x = Math.random() * (c.width - ball.r * 2) + ball.r;
     ball.y = Math.random() * (c.height - ball.r * 2) + ball.r;
     balls.push(ball);
   }
 }
-makeBalls(100);
+makeBalls(10);
 //console.log(balls);
 function update() {
   ctx.clearRect(0, 0, c.width, c.height);
   for (i = 0; i < balls.length; i++) {
-    if(balls[i].alive == false) continue;
+    if (balls[i].alive == false) continue;
     ctx.beginPath();
     ctx.arc(balls[i].x, balls[i].y, balls[i].r, 0, 2 * Math.PI);
     ctx.fill();
   }
 }
 
+function ballsAlive(){
+  var total=0 
+  for (i = 0; i < balls.length; i++){
+    if(balls[i].alive){
+      total+=1;
+    }
+   $("#ballsAlive").text(total);
+    if(total){
+      total=0
+    }
+  }
+}
+ 
 update();
 function checkCollision() {
   hitcount = 0;
@@ -72,15 +93,17 @@ function checkCollision() {
       //console.log(d,balls[i].r + balls[j].r);
 
       if (d < balls[i].r + balls[j].r) {
-        if(balls[i].r < balls[j].r){
-          balls[i].alive = false;
-          if(balls[i].r>balls[j].r){
-            balls[i].r+balls[j].r;
-          }
-        } else 
-          {
+        if (balls[i].r < balls[j].r) {
+          if (balls[i].alive == true) {
+            balls[j].r += Math.sqrt(balls[i].r);
+            balls[i].alive = false;
+          } 
+        } else {
+          if (balls[j].alive == true) {
+            balls[i].r += Math.sqrt(balls[j].r);
             balls[j].alive = false;
           }
+        }
         hitcount = hitcount + 1;
         hits = $("#scoreA").text();
         hits = hits * 1 + 1;
@@ -88,6 +111,8 @@ function checkCollision() {
       }
     }
   }
+ ballsAlive();
+  
   update();
 }
 
@@ -96,18 +121,18 @@ $("body").keydown(onKeyDown);
 function onKeyDown(e) {
   console.log(e.key);
   if (e.key == "w") {
-    balls[0].y -= 1;
+    balls[0].y -= 2;
   }
   if (e.key == "s") {
-    balls[0].y += 1;
+    balls[0].y += 2;
   }
 
   if (e.key == "a") {
-    balls[0].x -= 1;
+    balls[0].x -= 2;
   }
 
   if (e.key == "d") {
-    balls[0].x += 1;
+    balls[0].x += 2;
   }
   checkCollision();
   update();
